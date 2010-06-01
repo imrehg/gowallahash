@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 pos = (25, 121)
-API = ''
+import settings as settings
 
 
 def getgeohash(pos):
@@ -41,7 +41,7 @@ def getgeohash(pos):
 
 def gowallahash(pos):
     from gowalla import Gowalla
-    gowalla = Gowalla(api_key=API)
+    gowalla = Gowalla(api_key=settings.GOWALLA_API)
     radius = 50
     spots = gowalla.spots(lat=pos[0], lng=pos[1], radius=radius)
     if (len(spots['spots']) == 0):
