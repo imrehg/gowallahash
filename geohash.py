@@ -44,12 +44,16 @@ def gowallahash(pos):
     gowalla = Gowalla(api_key=API)
     radius = 50
     spots = gowalla.spots(lat=pos[0], lng=pos[1], radius=radius)
-    nearest = spots['spots'][0]
-    urlbase = "http://gowalla.com"
-    url = urlbase + nearest['url']
-    imgurl = nearest['_image_url_50']
-    name = nearest['name']
-    return (url, imgurl, name)
+    if (len(spots['spots']) == 0):
+        result = (None, None, None)
+    else:
+        nearest = spots['spots'][0]
+        urlbase = "http://gowalla.com"
+        url = urlbase + nearest['url']
+        imgurl = nearest['_image_url_50']
+        name = nearest['name']
+        result = (url, imgurl, name)
+    return result
 
 url, imgurl,  name = gowallahash(getgeohash(pos))
 from cgi import escape 
@@ -58,6 +62,9 @@ print "Content-type: text/html"
 print 
 print "<html><head><title>Gowallahash</title></head><body>"
 print "<h1>Gowallahash:</h1><p>Today and position %f, %f:<br>" %(pos[0], pos[1])
-print "<a href=%s><img src=\"%s\"></a></p>" %(url, imgurl)
+if not (url is None):
+    print "<a href=%s><img src=\"%s\"></a></p>" %(url, imgurl)
+else:
+    print "No Gowalla spot nearby... >.<"
 print "</body></html>"
 
