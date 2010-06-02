@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 pos = (25, 121)
+import os
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp import util, template
 import settings as settings
 
 
@@ -45,26 +48,38 @@ def gowallahash(pos):
     radius = 50
     spots = gowalla.spots(lat=pos[0], lng=pos[1], radius=radius)
     if (len(spots['spots']) == 0):
-        result = (None, None, None)
+        result = (None, None, None, pos)
     else:
         nearest = spots['spots'][0]
         urlbase = "http://gowalla.com"
         url = urlbase + nearest['url']
         imgurl = nearest['_image_url_50']
         name = nearest['name']
-        result = (url, imgurl, name)
+        result = (url, imgurl, name, pos)
     return result
 
-url, imgurl,  name = gowallahash(getgeohash(pos))
-from cgi import escape 
+class MainPage(webapp.RequestHandler):
+    def get(self):
+        url, imgurl, name, position = gowallahash(getgeohash(pos))
+        if url is None:
+            message = "No nearby Gowalla spot >.<"
+        else:
+            message = None
 
-print "Content-type: text/html" 
-print 
-print "<html><head><title>Gowallahash</title></head><body>"
-print "<h1>Gowallahash:</h1><p>Today and position %f, %f:<br>" %(pos[0], pos[1])
-if not (url is None):
-    print "<a href=%s><img src=\"%s\"></a></p>" %(url, imgurl)
-else:
-    print "No Gowalla spot nearby... >.<"
-print "</body></html>"
+        template_values = {
+            'posnorth': position[0],
+            'poswest': position[1],
+            'message': message,
+            'url': url,
+            'imgurl': imgurl,
+            }
+        path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
+        self.response.out.write(template.render(path, template_values))
 
+def main():
+    application = webapp.WSGIApplication([('/', MainPage)],
+                                         debug=True)
+    util.run_wsgi_app(application)
+
+if __name__ == '__main__':
+    main()
