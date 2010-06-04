@@ -1,9 +1,19 @@
 <html>
  <head>
   <title>Gowallahash</title>
+  <script type="text/javascript">
+   function getpos() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        document.getElementById("position").innerHTML = "You are at " + position.coords.latitude + "," + position.coords.longitude;
+      });
+    }
+   }
+</script>
  </head>
- <body>
+ <body onload=getpos()>
  <h1>Gowallahash:</h1>
+ <div id="position">Getting location...</div>
  <p>Looking up at {{ posnorth }}, {{ poswest }}:</p>
  {% if message %}
  <p>{{ message }}</p>
